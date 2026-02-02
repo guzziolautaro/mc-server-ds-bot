@@ -38,7 +38,7 @@ class Config(commands.Cog):
     @app_commands.default_permissions(administrator=True)
     async def generate_token(self, interaction: discord.Interaction):
 
-        view = ConfirmLink(self.bot, interaction.guild_id)
+        view = ConfirmLink()
 
         await interaction.response.send_message(
             "This will overwrite any existing token. Continue?", 
