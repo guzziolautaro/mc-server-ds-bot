@@ -11,7 +11,7 @@ class ServerUtils(commands.Cog):
     @app_commands.command(name="status", description="Checks server status")
     @has_guild_setup()
     async def status(self, interaction: discord.Interaction):
-        GUILD_SETTINGS = interaction.extras['settings']
+        GUILD_SETTINGS = interaction.extras['guild_settings']
         
         ip = GUILD_SETTINGS["sv_ip"]
         port = GUILD_SETTINGS["sv_port"]
