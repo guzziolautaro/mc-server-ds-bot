@@ -10,6 +10,7 @@ class DBManager:
                 CREATE TABLE IF NOT EXISTS server_data (
                     guild_id INTEGER PRIMARY KEY,
                     sv_ip TEXT,
+                    sv_port INTEGER DEFAULT 8080,
                     token TEXT
                 )
             ''')
@@ -39,8 +40,10 @@ class DBManager:
     async def get_guild_settings(self, guild_id: int):
         """Retrieves the config of a guild"""
         async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row 
+            
             async with db.execute(
-                "SELECT sv_ip, token FROM server_data WHERE guild_id = ?", 
+                "SELECT sv_ip, sv_port, token FROM server_data WHERE guild_id = ?", 
                 (guild_id,)
             ) as cursor:
                 return await cursor.fetchone()
