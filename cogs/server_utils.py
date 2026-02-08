@@ -1,7 +1,7 @@
-import aiohttp
 import discord
 from discord.ext import commands
 from discord import app_commands
+from network_manager import MinecraftNetworkError
 
 class ServerUtils(commands.Cog):
     def __init__(self, bot):
@@ -10,33 +10,27 @@ class ServerUtils(commands.Cog):
     @app_commands.command(name="status", description="Checks server status")
     async def status(self, interaction: discord.Interaction):
         GUILD_DATA = await self.bot.db.get_guild_settings(interaction.guild_id)
+        
+        ip = GUILD_DATA["sv_ip"]
+        port = GUILD_DATA["sv_port"]
+        token = GUILD_DATA["token"]
 
-        SERVER_URL = GUILD_DATA[0]
-        SECRET_TOKEN = GUILD_DATA[1]
+        if not GUILD_DATA or not token:
+            return await interaction.response.send_message("Server not set up.", ephemeral=True)
+        
+        try:
+            data = await self.bot.network.send_request(
+                ip=ip,
+                port=port,
+                token=token, 
+                action="status"
+            )
+            await interaction.response.send_message(f"**Server Status:** {data}")
 
-        SERVER_URL = f"http://{SERVER_URL}:8080/bot"
-
-        if SECRET_TOKEN == None:
-            await interaction.response.send_message("Token not generated")
-            return
-
-        headers = {"Authorization": f"Bearer {SECRET_TOKEN}"}
-        payload = {"action": "status"}
-
-        async with aiohttp.ClientSession() as session:
-            try:
-                async with session.post(SERVER_URL, json=payload, headers=headers, timeout=5) as response:
-                    if response.status == 200:
-                        data = await response.text()
-                        await interaction.response.send_message(f"**Server Status:** {data}")
-                    elif response.status == 403:
-                        await interaction.response.send_message("Security Error: Invalid Token.", ephemeral=True)
-                    else:
-                        await interaction.response.send_message(f"Server returned error code: {response.status}", ephemeral=True)
-            except aiohttp.ClientConnectorError:
-                await interaction.response.send_message("Could not connect to the server")
-            except Exception as e:
-                await interaction.response.send_message(f"An unexpected error occurred: {e}", ephemeral=True)
+        except MinecraftNetworkError as e:
+            await interaction.response.send_message(f"{e.message}", ephemeral=True)
+        except Exception as e:
+            await interaction.response.send_message(f"Unexpected error: {e}", ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(ServerUtils(bot))

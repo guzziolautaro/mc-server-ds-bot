@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 
 from db_manager import DBManager
+from network_manager import NetworkManager
 
 load_dotenv()
 
@@ -12,6 +13,7 @@ class Bot(commands.Bot):
         intents = discord.Intents.default()
         intents.message_content = True
         self.db = DBManager(db_path)
+        self.network = NetworkManager()
         super().__init__(command_prefix=None, intents=intents)
 
     async def setup_hook(self):
