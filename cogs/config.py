@@ -3,6 +3,8 @@ import inspect
 import secrets
 from discord.ext import commands
 from discord import app_commands
+from network_manager import MinecraftNetworkError
+from utils import has_guild_setup
 
 class ConfirmLink(discord.ui.View):
     def __init__(self):
@@ -56,6 +58,31 @@ class Config(commands.Cog):
                                                 Server Token updated to: `{new_token}`
                                             """)
                                             , ephemeral=True)
+    
+    @app_commands.command(name="sync", description="Syncs and verifies the server IP and TOKEN")
+    @app_commands.default_permissions(administrator=True)
+    @has_guild_setup()
+    async def sync(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+
+        GUILD_SETTINGS = interaction.extras['guild_settings']
+
+        try:
+            response = await self.bot.network.send_request(
+                ip=GUILD_SETTINGS["sv_ip"],
+                port=GUILD_SETTINGS["sv_port"],
+                token=GUILD_SETTINGS["token"], 
+                action="sync"
+            )
+
+            await self.bot.db.update_verified(interaction.guild_id, True)
+            await interaction.followup.send(f"Sync successful. Server message: `{response}`")
+                
+
+        except MinecraftNetworkError as e:
+            await interaction.followup.send(f"{e.message}", ephemeral=True)
+        except Exception as e:
+            await interaction.followup.send(f"An unexpected error occurred: {e}", ephemeral=True)
             
 
 async def setup(bot):
