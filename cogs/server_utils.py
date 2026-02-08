@@ -11,25 +11,23 @@ class ServerUtils(commands.Cog):
     @app_commands.command(name="status", description="Checks server status")
     @has_guild_setup()
     async def status(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+
         GUILD_SETTINGS = interaction.extras['guild_settings']
-        
-        ip = GUILD_SETTINGS["sv_ip"]
-        port = GUILD_SETTINGS["sv_port"]
-        token = GUILD_SETTINGS["token"]
         
         try:
             data = await self.bot.network.send_request(
-                ip=ip,
-                port=port,
-                token=token, 
+                ip=GUILD_SETTINGS["sv_ip"],
+                port=GUILD_SETTINGS["sv_port"],
+                token=GUILD_SETTINGS["token"], 
                 action="status"
             )
-            await interaction.response.send_message(f"**Server Status:** {data}")
+            await interaction.followup.send(f"**Server Status:** {data}")
 
         except MinecraftNetworkError as e:
-            await interaction.response.send_message(f"{e.message}", ephemeral=True)
+            await interaction.followup.send(f"{e.message}", ephemeral=True)
         except Exception as e:
-            await interaction.response.send_message(f"Unexpected error: {e}", ephemeral=True)
+            await interaction.followup.send(f"An unexpected error occurred: {e}", ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(ServerUtils(bot))
