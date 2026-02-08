@@ -2,21 +2,20 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from network_manager import MinecraftNetworkError
+from utils import has_guild_setup
 
 class ServerUtils(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @app_commands.command(name="status", description="Checks server status")
+    @has_guild_setup()
     async def status(self, interaction: discord.Interaction):
-        GUILD_DATA = await self.bot.db.get_guild_settings(interaction.guild_id)
+        GUILD_SETTINGS = interaction.extras['settings']
         
-        ip = GUILD_DATA["sv_ip"]
-        port = GUILD_DATA["sv_port"]
-        token = GUILD_DATA["token"]
-
-        if not GUILD_DATA or not token:
-            return await interaction.response.send_message("Server not set up.", ephemeral=True)
+        ip = GUILD_SETTINGS["sv_ip"]
+        port = GUILD_SETTINGS["sv_port"]
+        token = GUILD_SETTINGS["token"]
         
         try:
             data = await self.bot.network.send_request(
