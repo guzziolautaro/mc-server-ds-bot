@@ -76,7 +76,7 @@ class Config(commands.Cog):
             )
 
             await self.bot.db.update_verified(interaction.guild_id, True)
-            await interaction.followup.send(f"Sync successful. Server message: `{response}`")
+            await interaction.followup.send(f"Sync successful. Server message: `{response}`", ephemeral=True)
                 
 
         except MinecraftNetworkError as e:
