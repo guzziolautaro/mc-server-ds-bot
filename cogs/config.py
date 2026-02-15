@@ -33,7 +33,7 @@ class Config(commands.Cog):
     @app_commands.default_permissions(administrator=True)
     async def set_ip(self, interaction: discord.Interaction, ip: str):
 
-        await self.bot.db.update_ip(interaction.guild.id, ip)
+        await self.bot.db.update_guild_data(interaction.guild.id, sv_ip=ip)
         await interaction.response.send_message(f"Server IP updated to: `{ip}`", ephemeral=True)
 
     @app_commands.command(name="generate_token", description="Generate a new token")
@@ -52,7 +52,7 @@ class Config(commands.Cog):
         if view.value:
             new_token = secrets.token_hex(16)
 
-            await self.bot.db.update_token(interaction.guild.id, new_token)
+            await self.bot.db.update_guild_data(interaction.guild.id, token=new_token)
             await interaction.followup.send(inspect.cleandoc(f"""
                                                 For security reasons this token will only be showed once
                                                 Server Token updated to: `{new_token}`
@@ -75,7 +75,7 @@ class Config(commands.Cog):
                 action="sync"
             )
 
-            await self.bot.db.update_verified(interaction.guild_id, True)
+            await self.bot.db.update_guild_data(interaction.guild_id, verified=True)
             await interaction.followup.send(f"Sync successful. Server message: `{response}`", ephemeral=True)
                 
 

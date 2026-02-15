@@ -39,45 +39,25 @@ class DBManager:
         await db.commit()
         print(f"Database schema synced. Current columns: {', '.join(columns.keys())}")
 
-    async def update_ip(self, guild_id: int, ip: str):
-        """Updates or inserts the server IP of a given guild"""
-        async with aiosqlite.connect(self.db_path) as db:
-            await db.execute('''
-                INSERT INTO server_data (guild_id, sv_ip) 
-                VALUES (?, ?)
-                ON CONFLICT(guild_id) DO UPDATE SET sv_ip = excluded.sv_ip
-            ''', (guild_id, ip))
-            await db.commit()
+    async def update_guild_data(self, guild_id: int, **kwargs):
+        """Updates any number of columns at once"""
+        if not kwargs:
+            return
 
-    async def update_token(self, guild_id: int, token: str):
-        """Updates or inserts the token of a given guild"""
-        async with aiosqlite.connect(self.db_path) as db:
-            await db.execute('''
-                INSERT INTO server_data (guild_id, token) 
-                VALUES (?, ?)
-                ON CONFLICT(guild_id) DO UPDATE SET token = excluded.token
-            ''', (guild_id, token))
-            await db.commit()
-    
-    async def update_port(self, guild_id: int, port: int):
-        """Updates or inserts the port of a given guild"""
-        async with aiosqlite.connect(self.db_path) as db:
-            await db.execute('''
-                INSERT INTO server_data (guild_id, sv_port) 
-                VALUES (?, ?)
-                ON CONFLICT(guild_id) DO UPDATE SET sv_port = excluded.sv_port
-            ''', (guild_id, port))
-            await db.commit()
+        db = await self.get_db()
+        cols = ", ".join(kwargs.keys())
+        placeholders = ", ".join(["?"] * len(kwargs))
+        update_str = ", ".join([f"{col} = excluded.{col}" for col in kwargs.keys()])
 
-    async def update_verified(self, guild_id: int, verified: bool):
-        """Updates or inserts the verified status of a given guild"""
-        async with aiosqlite.connect(self.db_path) as db:
-            await db.execute('''
-                INSERT INTO server_data (guild_id, verified) 
-                VALUES (?, ?)
-                ON CONFLICT(guild_id) DO UPDATE SET verified = excluded.verified
-            ''', (guild_id, verified))
-            await db.commit()
+        query = f'''
+            INSERT INTO server_data (guild_id, {cols}) 
+            VALUES (?, {placeholders})
+            ON CONFLICT(guild_id) DO UPDATE SET {update_str}
+        '''
+        
+        values = [guild_id] + list(kwargs.values())
+        await db.execute(query, values)
+        await db.commit()
 
     async def get_guild_settings(self, guild_id: int):
         """Retrieves the config of a guild"""
