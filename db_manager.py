@@ -3,20 +3,41 @@ import aiosqlite
 class DBManager:
     def __init__(self, db_path):
         self.db_path = db_path
+        self._db = None
+
+    async def get_db(self):
+        """Returns a persistent connection"""
+        if self._db is None:
+            self._db = await aiosqlite.connect(self.db_path)
+            self._db.row_factory = aiosqlite.Row
+        return self._db
 
     async def setup(self):
-        async with aiosqlite.connect(self.db_path) as db:
-            await db.execute('''
-                CREATE TABLE IF NOT EXISTS server_data (
-                    guild_id INTEGER PRIMARY KEY,
-                    sv_ip TEXT,
-                    sv_port INTEGER DEFAULT 8080,
-                    token TEXT,
-                    verified INTEGER DEFAULT 0  -- 0 = False, 1 = True
-                )
-            ''')
-            await db.commit()
-        print(f"Database initialized at {self.db_path}")
+        db = await self.get_db()
+        
+        #{name: type_definition}
+        columns = {
+            "guild_id": "INTEGER PRIMARY KEY",
+            "sv_ip": "TEXT",
+            "sv_port": "INTEGER DEFAULT 8080",
+            "token": "TEXT",
+            "verified": "INTEGER DEFAULT 0",
+        }
+
+        await db.execute("CREATE TABLE IF NOT EXISTS server_data (guild_id INTEGER PRIMARY KEY)")
+        
+        for col_name, col_type in columns.items():
+            if col_name == "guild_id": 
+                continue
+                
+            try:
+                await db.execute(f"ALTER TABLE server_data ADD COLUMN {col_name} {col_type}")
+            except aiosqlite.OperationalError:
+                # OperationalError means the column already exists
+                pass
+                
+        await db.commit()
+        print(f"Database schema synced. Current columns: {', '.join(columns.keys())}")
 
     async def update_ip(self, guild_id: int, ip: str):
         """Updates or inserts the server IP of a given guild"""
