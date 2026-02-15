@@ -25,5 +25,9 @@ class Bot(commands.Bot):
     async def on_ready(self):
         print(f'Logged in as {bot.user} (ID: {bot.user.id})')
 
+    async def close(self):
+        await self.db.close()
+        await super().close()
+
 bot = Bot("bot_data.db")
 bot.run(os.getenv('TOKEN'))

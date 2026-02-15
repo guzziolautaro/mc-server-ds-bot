@@ -89,3 +89,8 @@ class DBManager:
                 (guild_id,)
             ) as cursor:
                 return await cursor.fetchone()
+            
+    async def close(self):
+        """clean shutdown"""
+        if self._db:
+            await self._db.close()
