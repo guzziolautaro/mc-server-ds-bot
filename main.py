@@ -22,10 +22,8 @@ class Bot(commands.Bot):
         await self.load_extension('cogs.server_utils')
         await self.tree.sync()
 
+    async def on_ready(self):
+        print(f'Logged in as {bot.user} (ID: {bot.user.id})')
 
 bot = Bot("bot_data.db")
-@bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user} (ID: {bot.user.id})')
-
 bot.run(os.getenv('TOKEN'))
