@@ -4,26 +4,7 @@ import secrets
 from discord.ext import commands
 from discord import app_commands
 from network_manager import MinecraftNetworkError
-from utils import has_guild_setup
-
-class ConfirmLink(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=60)
-        self.value = None
-
-    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
-    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
-
-        self.value = True
-        self.stop()
-        await interaction.response.edit_message(view=None)
-
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.grey)
-    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
-        
-        self.value = False
-        self.stop()
-        await interaction.response.edit_message(content="Action cancelled", view=None)
+from utils import has_guild_setup, ConfirmLink
 
 class Config(commands.Cog):
     def __init__(self, bot):
