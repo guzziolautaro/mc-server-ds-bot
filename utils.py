@@ -13,6 +13,21 @@ def has_guild_setup():
     
     return app_commands.check(predicate)
 
+def has_server_synced():
+    async def predicate(interaction: discord.Interaction) -> bool:
+        guild_data = await interaction.client.db.get_guild_settings(interaction.guild_id)
+        
+        if not guild_data or not guild_data["sv_ip"] or not guild_data["token"]:
+            raise app_commands.CheckFailure("An Ip and Token have to be set to use this command")
+        
+        if not guild_data["verified"]:
+            raise app_commands.CheckFailure("Server not synced. Run `/config sync` to enable this command")
+
+        interaction.extras['guild_settings'] = guild_data
+        return True
+
+    return app_commands.check(predicate)
+
 class ConfirmLink(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=60)
