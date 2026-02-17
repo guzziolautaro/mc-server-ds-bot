@@ -11,7 +11,7 @@ class ServerUtils(commands.Cog):
     @app_commands.command(name="status", description="Checks server status")
     @has_guild_setup()
     async def status(self, interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer()
 
         GUILD_SETTINGS = interaction.extras['guild_settings']
         
