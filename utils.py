@@ -9,7 +9,7 @@ def has_guild_setup():
             interaction.extras['guild_settings'] = guild_data
             return True
         
-        raise app_commands.CheckFailure("an Ip and Token have to be set to use this command")
+        raise app_commands.CheckFailure("An Ip and Token have to be set to use this command")
     
     return app_commands.check(predicate)
 
