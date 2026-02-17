@@ -5,11 +5,11 @@ def has_guild_setup():
     async def predicate(interaction: discord.Interaction) -> bool:
         guild_data = await interaction.client.db.get_guild_settings(interaction.guild_id)
         
-        if guild_data and guild_data[0] and guild_data[1]:
+        if guild_data and guild_data["sv_ip"] and guild_data["token"]:
             interaction.extras['guild_settings'] = guild_data
             return True
         
-        raise app_commands.CheckFailure("Server not set up.")
+        raise app_commands.CheckFailure("an Ip and Token have to be set to use this command")
     
     return app_commands.check(predicate)
 
