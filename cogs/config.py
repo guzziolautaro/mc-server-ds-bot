@@ -6,7 +6,7 @@ from discord import app_commands
 from network_manager import MinecraftNetworkError
 from utils import has_guild_setup, ConfirmLink
 
-class Config(commands.Cog):
+class Config(commands.GroupCog, name="config"):
     def __init__(self, bot):
         self.bot = bot
 
