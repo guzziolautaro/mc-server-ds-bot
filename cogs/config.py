@@ -16,6 +16,13 @@ class Config(commands.GroupCog, name="config"):
 
         await self.bot.db.update_guild_data(interaction.guild.id, sv_ip=ip, verified=False)
         await interaction.response.send_message(f"Server IP updated to: `{ip}`", ephemeral=True)
+    
+    @app_commands.command(name="set_port", description="Set the server PORT (Default: 8080)")
+    @app_commands.default_permissions(administrator=True)
+    async def set_ip(self, interaction: discord.Interaction, port: str):
+
+        await self.bot.db.update_guild_data(interaction.guild.id, sv_port=port, verified=False)
+        await interaction.response.send_message(f"Server PORT updated to: `{port}`", ephemeral=True)
 
     @app_commands.command(name="generate_token", description="Generate a new token")
     @app_commands.default_permissions(administrator=True)
