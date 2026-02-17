@@ -2,14 +2,14 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from network_manager import MinecraftNetworkError
-from utils import has_guild_setup
+from utils import has_guild_setup, has_server_synced
 
 class ServerUtils(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @app_commands.command(name="status", description="Checks server status")
-    @has_guild_setup()
+    @has_server_synced()
     async def status(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
