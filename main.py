@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
+from discord import app_commands
 
 from db_manager import DBManager
 from network_manager import NetworkManager
@@ -20,6 +21,17 @@ class Bot(commands.Bot):
         await self.db.setup()
         await self.load_extension('cogs.config')
         await self.load_extension('cogs.server_utils')
+
+        @self.tree.error
+        async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+            if isinstance(error, app_commands.CheckFailure):
+                if interaction.response.is_done():
+                    await interaction.followup.send(f":red_circle: {error}", ephemeral=True)
+                else:
+                    await interaction.response.send_message(f":red_circle: {error}", ephemeral=True)
+            else:
+                print(f"App Command Error: {error}")
+
         await self.tree.sync()
 
     async def on_ready(self):
