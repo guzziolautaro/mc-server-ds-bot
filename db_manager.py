@@ -65,7 +65,7 @@ class DBManager:
             db.row_factory = aiosqlite.Row 
             
             async with db.execute(
-                "SELECT sv_ip, sv_port, token FROM server_data WHERE guild_id = ?", 
+                "SELECT sv_ip, sv_port, token, verified FROM server_data WHERE guild_id = ?", 
                 (guild_id,)
             ) as cursor:
                 return await cursor.fetchone()
