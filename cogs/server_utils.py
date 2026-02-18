@@ -43,5 +43,33 @@ class ServerUtils(commands.Cog):
         except Exception as e:
             await interaction.followup.send(f"An unexpected error occurred: {e}", ephemeral=True)
 
+    @app_commands.command(name="broadcast", description="Sends a global server message")
+    @app_commands.default_permissions(administrator=True)
+    @has_server_synced()
+    async def broadcast(self, interaction: discord.Interaction, message: str):
+        await interaction.response.defer(ephemeral=True)
+
+        GUILD_SETTINGS = interaction.extras['guild_settings']
+        params = {
+            'message': message
+        }
+
+        try:
+            data = await self.bot.network.send_request(
+                ip=GUILD_SETTINGS["sv_ip"],
+                port=GUILD_SETTINGS["sv_port"],
+                token=GUILD_SETTINGS["token"], 
+                action="broadcast",
+                params=params
+            )
+            
+            await interaction.followup.send("Broadcast: " + data.get("status", "Unknown"))
+
+        except MinecraftNetworkError as e:
+            await interaction.followup.send("Server offline or unreachable")
+        except Exception as e:
+            await interaction.followup.send(f"An unexpected error occurred: {e}", ephemeral=True)
+        
+
 async def setup(bot):
     await bot.add_cog(ServerUtils(bot))
