@@ -39,6 +39,8 @@ class Bot(commands.Bot):
 
     async def close(self):
         await self.db.close()
+        if hasattr(self, 'network'):
+            await self.network.close()
         await super().close()
 
 bot = Bot("bot_data.db")
