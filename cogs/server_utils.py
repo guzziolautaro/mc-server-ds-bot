@@ -24,7 +24,7 @@ class ServerUtils(commands.Cog):
             )
             embed = discord.Embed(
                 title=":green_circle: Server Online",
-                description=data,
+                description=f"Online: {data.get("online", 0)}/{data.get("max", 0)}",
                 color=discord.Color.green()
             )
             embed.set_footer(text=GUILD_SETTINGS["sv_ip"])

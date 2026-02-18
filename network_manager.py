@@ -29,7 +29,10 @@ class NetworkManager:
         try:
             async with session.post(url, json=payload, headers=headers, timeout=5) as resp:
                 if resp.status == 200:
-                    return await resp.text()
+                    try:
+                        return await resp.json(content_type=None)
+                    except Exception:
+                        return {}
                 elif resp.status == 403:
                     raise MinecraftNetworkError(403, "Invalid Token")
                 else:
