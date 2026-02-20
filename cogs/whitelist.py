@@ -1,4 +1,5 @@
 import discord
+import io
 from discord.ext import commands
 from discord import app_commands
 from network_manager import MinecraftNetworkError
@@ -117,16 +118,31 @@ class Whitelist(commands.GroupCog, name="whitelist"):
                         description="",
                         color=discord.Color.green()
                     )
+                    embed.set_footer(text=f"Total Whitelisted: {len(players)}")
+                    embed.timestamp = discord.utils.utcnow()
+
                     if not players:
                         embed.description="```Currently empty.```"
+
+                        await interaction.followup.send(embed=embed)
+
+                    elif len(players) > 100:
+                        player_list = "\n".join(players)
+                        file_data = io.BytesIO(player_list.encode('utf-8'))
+                        discord_file = discord.File(file_data, filename="whitelist.txt")
+                        
+                        embed.description="```List over 100 players. Sending .txt file instead```"
+
+                        await interaction.followup.send(
+                            embed=embed,
+                            file=discord_file
+                        )
+                        
                     else:
                         player_list = "\n".join(f"• {name}" for name in players)
                         embed.description=f"```\n{player_list}\n```"
 
-                    embed.set_footer(text=f"Total Whitelisted: {len(players)}")
-                    embed.timestamp = discord.utils.utcnow()
-
-                    await interaction.followup.send(embed=embed)
+                        await interaction.followup.send(embed=embed)
 
         except MinecraftNetworkError as e:
             await interaction.followup.send("Server offline or unreachable")
