@@ -63,7 +63,7 @@ class ServerUtils(commands.Cog):
                 params=params
             )
             
-            await interaction.followup.send("Broadcast: " + data.get("status", "Unknown"))
+            await interaction.followup.send("Broadcast: " + data.get("status", "unknown"))
 
         except MinecraftNetworkError as e:
             await interaction.followup.send("Server offline or unreachable")

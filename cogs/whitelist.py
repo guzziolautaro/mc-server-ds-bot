@@ -48,8 +48,39 @@ class Whitelist(commands.GroupCog, name="whitelist"):
     @app_commands.default_permissions(administrator=True)
     @has_server_synced()
     async def remove(self, interaction: discord.Interaction, name: str):
-        #todo
-        pass
+        await interaction.response.defer(ephemeral=True)
+
+        GUILD_SETTINGS = interaction.extras['guild_settings']
+        params = {
+            'operation': 'remove',
+            'name': name
+        }
+
+        try:
+            data = await self.bot.network.send_request(
+                ip=GUILD_SETTINGS["sv_ip"],
+                port=GUILD_SETTINGS["sv_port"],
+                token=GUILD_SETTINGS["token"], 
+                action="whitelist",
+                params=params
+            )
+            
+            match data.get("status", "unknown"):
+                case "unknown":
+                    await interaction.followup.send(":red_circle: Whitelist unknown error")
+                case "error":
+                    await interaction.followup.send(":red_circle: Whitelist internal server error")
+                case "unavailable":
+                    await interaction.followup.send(":yellow_circle: Whitelist not enabled on this server")
+                case "success":
+                    await interaction.followup.send(":green_circle: Player name removed from the whitelist")
+                case "not_found":
+                    await interaction.followup.send(":yellow_circle: Player name not on the whitelist")
+
+        except MinecraftNetworkError as e:
+            await interaction.followup.send("Server offline or unreachable")
+        except Exception as e:
+            await interaction.followup.send(f"An unexpected error occurred: {e}", ephemeral=True)
 
     @app_commands.command(name="list", description="lists all Player names in the whitelist")
     @app_commands.default_permissions(administrator=True)
