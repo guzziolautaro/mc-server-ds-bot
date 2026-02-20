@@ -35,9 +35,9 @@ class Whitelist(commands.GroupCog, name="whitelist"):
                 case "unavailable":
                     await interaction.followup.send(":yellow_circle: Whitelist not enabled on this server")
                 case "success":
-                    await interaction.followup.send(":green_circle: Player name added to the whitelist")
+                    await interaction.followup.send(f":green_circle: Player name `{name}` added to the whitelist")
                 case "conflict":
-                    await interaction.followup.send(":yellow_circle: Player name already on the whitelist")
+                    await interaction.followup.send(f":yellow_circle: Player name `{name}` already on the whitelist")
 
         except MinecraftNetworkError as e:
             await interaction.followup.send("Server offline or unreachable")
@@ -73,9 +73,9 @@ class Whitelist(commands.GroupCog, name="whitelist"):
                 case "unavailable":
                     await interaction.followup.send(":yellow_circle: Whitelist not enabled on this server")
                 case "success":
-                    await interaction.followup.send(":green_circle: Player name removed from the whitelist")
+                    await interaction.followup.send(f":green_circle: Player name `{name}` removed from the whitelist")
                 case "not_found":
-                    await interaction.followup.send(":yellow_circle: Player name not on the whitelist")
+                    await interaction.followup.send(f":yellow_circle: Player name `{name}` not on the whitelist")
 
         except MinecraftNetworkError as e:
             await interaction.followup.send("Server offline or unreachable")
@@ -118,7 +118,7 @@ class Whitelist(commands.GroupCog, name="whitelist"):
                         color=discord.Color.green()
                     )
                     if not players:
-                        embed.description="The whitelist is currently empty."
+                        embed.description="```Currently empty.```"
                     else:
                         player_list = "\n".join(f"• {name}" for name in players)
                         embed.description=f"```\n{player_list}\n```"
