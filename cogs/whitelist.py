@@ -86,7 +86,52 @@ class Whitelist(commands.GroupCog, name="whitelist"):
     @app_commands.default_permissions(administrator=True)
     @has_server_synced()
     async def list(self, interaction: discord.Interaction):
-        #todo
+        await interaction.response.defer(ephemeral=True)
+
+        GUILD_SETTINGS = interaction.extras['guild_settings']
+        params = {
+            'operation': 'list'
+        }
+
+        try:
+            data = await self.bot.network.send_request(
+                ip=GUILD_SETTINGS["sv_ip"],
+                port=GUILD_SETTINGS["sv_port"],
+                token=GUILD_SETTINGS["token"], 
+                action="whitelist",
+                params=params
+            )
+            
+            match data.get("status", "unknown"):
+                case "unknown":
+                    await interaction.followup.send(":red_circle: Whitelist unknown error")
+                case "error":
+                    await interaction.followup.send(":red_circle: Whitelist internal server error")
+                case "unavailable":
+                    await interaction.followup.send(":yellow_circle: Whitelist not enabled on this server")
+                case "success":
+                    players = data.get("players", [])
+
+                    embed = discord.Embed(
+                        title=":green_circle: Whitelisted players:",
+                        description="",
+                        color=discord.Color.green()
+                    )
+                    if not players:
+                        embed.description="The whitelist is currently empty."
+                    else:
+                        player_list = "\n".join(f"• {name}" for name in players)
+                        embed.description=f"```\n{player_list}\n```"
+
+                    embed.set_footer(text=f"Total Whitelisted: {len(players)}")
+                    embed.timestamp = discord.utils.utcnow()
+
+                    await interaction.followup.send(embed=embed)
+
+        except MinecraftNetworkError as e:
+            await interaction.followup.send("Server offline or unreachable")
+        except Exception as e:
+            await interaction.followup.send(f"An unexpected error occurred: {e}", ephemeral=True)
         pass
 
 async def setup(bot):
