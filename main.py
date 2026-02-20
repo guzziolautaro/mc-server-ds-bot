@@ -21,6 +21,7 @@ class Bot(commands.Bot):
         await self.db.setup()
         await self.load_extension('cogs.config')
         await self.load_extension('cogs.server_utils')
+        await self.load_extension('cogs.whitelist')
 
         @self.tree.error
         async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
