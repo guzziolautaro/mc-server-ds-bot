@@ -22,6 +22,8 @@ class DBManager:
             "sv_port": "INTEGER DEFAULT 8080",
             "token": "TEXT",
             "verified": "INTEGER DEFAULT 0",
+            "last_seen": "INTEGER DEFAULT 0",
+            "is_active": "INTEGER DEFAULT 0"
         }
 
         await db.execute("CREATE TABLE IF NOT EXISTS server_data (guild_id INTEGER PRIMARY KEY)")

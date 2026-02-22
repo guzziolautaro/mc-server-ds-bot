@@ -1,6 +1,7 @@
 import discord
 import inspect
 import secrets
+import time
 from discord.ext import commands
 from discord import app_commands
 from network_manager import MinecraftNetworkError
@@ -63,7 +64,7 @@ class Config(commands.GroupCog, name="config"):
                 action="sync"
             )
 
-            await self.bot.db.update_guild_data(interaction.guild_id, verified=True)
+            await self.bot.db.update_guild_data(interaction.guild_id, verified=True, last_seen=time.time(), is_active=True)
             await interaction.followup.send(f"Sync successful. Server message: `{response.get("status", "none")}`", ephemeral=True)
                 
 
